@@ -119,7 +119,7 @@ class ImageService:
                 )
 
             path = Path(file_path)
-            suffix = ".webp" if lossless and path.suffix.lower() not in (".png", ".webp") else path.suffix
+            suffix = self._output_suffix(path.suffix, lossless)
             output_path = path.parent / f"{path.stem}_compressed{suffix}"
             original_size = path.stat().st_size
 
@@ -130,7 +130,7 @@ class ImageService:
                 if max_dimension and not lossless:
                     work = self._downscale(work, max_dimension)
 
-                self._encode(work, output_path, quality, lossless)
+                self._encode(work, output_path, quality, lossless, suffix)
                 work.close()
 
                 compressed_size = output_path.stat().st_size
@@ -174,7 +174,8 @@ class ImageService:
                     work = self._downscale(work, max_dimension)
 
                 buffer = io.BytesIO()
-                self._encode(work, buffer, quality, lossless)
+                ext = self._output_suffix(path.suffix, lossless)
+                self._encode(work, buffer, quality, lossless, ext)
                 estimated = buffer.tell()
                 work.close()
             except Exception:
@@ -311,12 +312,40 @@ class ImageService:
             return img.convert("RGB")
         return img
 
-    def _encode(self, img: Image.Image, target, quality: int, lossless: bool) -> None:
-        """Encode an image to ``target`` (path or file-like object)."""
-        fmt = getattr(target, "suffix", None)
-        ext = fmt.lower() if fmt else (".webp" if lossless else ".jpg")
+    @staticmethod
+    def _output_suffix(input_suffix: str, lossless: bool) -> str:
+        """Pick the output extension used for both estimate and real compression.
 
-        if ext == ".png" or (lossless and ext not in (".jpg", ".jpeg", ".webp")):
+        Output is restricted to PNG or JPG. Lossless keeps the pixels exact and
+        stays as PNG. Lossy compression must use a format that honors the quality
+        setting: PNG ignores quality entirely, so PNG/BMP/TIFF inputs are
+        re-encoded as JPG (transparency is flattened onto white), while JPEG
+        inputs keep their own format.
+        """
+        ext = input_suffix.lower()
+        if lossless:
+            # Exact pixels -> PNG is the only lossless target we emit.
+            return ".png"
+        if ext in (".jpg", ".jpeg"):
+            return ext
+        # PNG / BMP / TIFF / WEBP and anything else: PNG can't apply lossy
+        # quality, so re-encode as JPG to actually honor the slider.
+        return ".jpg"
+
+    def _encode(self, img: Image.Image, target, quality: int, lossless: bool, ext: Optional[str] = None) -> None:
+        """Encode an image to ``target`` (path or file-like object).
+
+        ``ext`` is the intended output extension (e.g. ``.webp``). When omitted it
+        is inferred from ``target`` so both file and in-memory encoding stay
+        consistent.
+        """
+        if ext is None:
+            fmt = getattr(target, "suffix", None)
+            ext = fmt.lower() if fmt else self._output_suffix("", lossless)
+        else:
+            ext = ext.lower()
+
+        if ext == ".png":
             img.save(target, "PNG", optimize=True)
         elif ext == ".webp":
             if lossless:
