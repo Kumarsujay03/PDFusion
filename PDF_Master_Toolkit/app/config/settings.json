@@ -1,0 +1,44 @@
+{
+    "app": {
+        "name": "PDFusion",
+        "version": "1.0.0",
+        "author": "PDFusion",
+        "window_width": 1400,
+        "window_height": 900,
+        "min_width": 1000,
+        "min_height": 700
+    },
+    "theme": {
+        "mode": "dark",
+        "accent_color": "#0078D4",
+        "font_family": "Segoe UI",
+        "font_size": 10
+    },
+    "conversion": {
+        "default_dpi": 300,
+        "default_quality": 90,
+        "default_format": "png",
+        "output_folder": "",
+        "overwrite": false
+    },
+    "compression": {
+        "default_level": "medium",
+        "default_image_quality": 75,
+        "remove_metadata": false
+    },
+    "ocr": {
+        "default_language": "eng",
+        "dpi": 300,
+        "output_type": "searchable_pdf"
+    },
+    "performance": {
+        "max_threads": 4,
+        "memory_limit_mb": 2048,
+        "chunk_size": 50
+    },
+    "export": {
+        "last_folder": "",
+        "naming_template": "{filename}_{page}",
+        "overwrite_warning": true
+    }
+}
