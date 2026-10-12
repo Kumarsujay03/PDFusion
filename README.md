@@ -55,7 +55,7 @@ A professional, all-in-one **offline** PDF utility for Windows, built with Pytho
 ## Installation (from source)
 
 ```bash
-git clone https://github.com/<your-username>/PDFusion.git
+git clone https://github.com/Kumarsujay03/PDFusion.git
 cd PDFusion
 pip install -r requirements.txt
 ```
