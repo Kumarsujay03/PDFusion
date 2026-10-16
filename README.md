@@ -1,5 +1,7 @@
 # PDFusion
 
+<p align="center"><img src="docs/banner.png" alt="PDFusion banner" width="100%"></p>
+
 A professional, all-in-one **offline** PDF utility for Windows, built with Python and PySide6 (Qt 6). Convert, compress, edit, secure, and OCR your PDFs entirely on your machine — no cloud services, no external APIs, no internet dependency.
 
 ## Features
